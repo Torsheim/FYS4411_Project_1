@@ -1,11 +1,13 @@
-"""Analyze Monte Carlo output using blocking/bootstrap methods.
+#!/usr/bin/env python
+"""Compatibility wrapper for Project 1e blocking/bootstrap analysis.
 
-This is a placeholder script. Add blocking analysis here later.
+The actual implementation lives in run_project1_e.py. This wrapper exists so
+that the repository does not contain a placeholder analysis script.
 """
 
+from __future__ import annotations
 
-def main() -> None:
-    print("Blocking analysis script placeholder.")
+from run_project1_e import main
 
 
 if __name__ == "__main__":

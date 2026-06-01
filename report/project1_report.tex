@@ -77,7 +77,7 @@
 \textbf{Abstract}
 \end{center}
 \noindent
-A variational Monte Carlo solver was implemented for trapped bosons in harmonic oscillator potentials. The code was developed first for the non-interacting oscillator, where analytical results are available in one, two, and three dimensions, and then extended to importance sampling, parameter optimization, blocking analysis, a hard-core Jastrow correlation factor, and one-body densities. Brute-force Metropolis calculations reproduced the expected variational minimum at $\alpha=0.5$, with $E/N=0.5$, $1.0$, and $1.5$ in one, two, and three dimensions. Importance sampling reproduced the same values at the exact parameter and gave finite-variance checks at $\alpha=0.45$. A gradient optimization of $\alpha$ for $N=100$ particles in three dimensions converged from $\alpha=0.7$ to $\alpha=0.5$ and from $E=158.47$ to $E=150$. The hard-core calculations with $a/a_{\mathrm{ho}}=0.0043$ and $\beta=\gamma=2.82843$ gave energies above the ideal reference and minima close to $\alpha=0.5$. The radial one-body density was only weakly modified by the short-range Jastrow factor for the parameters studied.
+A variational Monte Carlo solver was implemented for trapped bosons in harmonic oscillator potentials. The code was developed first for the non-interacting oscillator, where analytical results are available in one, two, and three dimensions, and then extended to importance sampling, parameter optimization, blocking analysis, a hard-core Jastrow correlation factor, and one-body densities. Brute-force Metropolis calculations reproduced the expected variational minimum at $\alpha=0.5$, with $E/N=0.5$, $1.0$, and $1.5$ in one, two, and three dimensions. Importance sampling reproduced the same values at the exact parameter and gave finite-variance checks at $\alpha=0.45$. A gradient optimization of $\alpha$ for $N=100$ particles in three dimensions converged from $\alpha=0.7$ to $\alpha=0.5$ and from $E=158.47$ to $E=150$. The hard-core calculations with $a/a_{\mathrm{ho}}=0.0043$ and $\beta=\gamma=2.82843$ gave energies above the ideal reference and minima close to $\alpha=0.5$. The radial one-body density was only weakly modified by the short-range Jastrow factor for the parameters studied. Additional feedback-driven checks include an analytic-versus-finite-difference local-energy timing comparison, committed selected CSV result files, and a pair-distance diagnostic for the hard-core correlation.
 \vspace{0.30cm}
 \begin{center}
 Repository: \url{https://github.com/Torsheim/FYS4411_Project_1}
@@ -181,11 +181,28 @@ The derivatives are
 \end{align}
 For particle $k$,
 \begin{equation}
-    \nabla_k\ln\PsiT=\nabla_k\ln\phi(\br_k)+
-    \sum_{j\ne k}\frac{\br_k-\br_j}{r_{kj}}u'(r_{kj}).
+    \nabla_k\ln\PsiT=\nabla_k\ln\phi(\br_k)+\mathbf{C}_k,
+    \qquad
+    \mathbf{C}_k=\sum_{j\ne k}\frac{\br_k-\br_j}{r_{kj}}u'(r_{kj}).
     \label{eq:grad-log-full}
 \end{equation}
-The full local energy contains the Gaussian Laplacian, the Gaussian--Jastrow cross term, the squared Jastrow-gradient term, and the Jastrow Laplacian. Configurations with $r_{ij}\le a$ are assigned zero wave-function weight and rejected.
+The final expression used in the code is
+\begin{align}
+    \frac{\nabla_k^2\PsiT}{\PsiT}
+    &= \frac{\nabla_k^2\phi(\br_k)}{\phi(\br_k)}
+    +2\frac{\nabla_k\phi(\br_k)}{\phi(\br_k)}\cdot\mathbf{C}_k
+    +\mathbf{C}_k\cdot\mathbf{C}_k \\
+    &\quad +\sum_{j\ne k}\left[u''(r_{kj})+\frac{2}{r_{kj}}u'(r_{kj})\right],
+    \label{eq:full-laplacian-final}
+\end{align}
+where the last term is written for three dimensions. The interacting local energy is therefore
+\begin{equation}
+    \EL(\bR)=
+    -\frac{1}{2}\sum_{k=1}^{N}\frac{\nabla_k^2\PsiT}{\PsiT}
+    +\frac{1}{2}\sum_{k=1}^{N}(x_k^2+y_k^2+\gamma^2z_k^2),
+    \label{eq:full-interacting-local-energy}
+\end{equation}
+for configurations satisfying all $r_{ij}>a$. Configurations with $r_{ij}\le a$ are assigned zero wave-function weight and rejected.
 
 \section{Numerical method}\label{sec:method}
 
@@ -230,6 +247,9 @@ Figures~\ref{fig:1b-energy-1d}, \ref{fig:1b-energy-2d}, and \ref{fig:1b-energy-3
 
 Table~\ref{tab:1b-validation} lists the validation points at $\alpha=0.5$. The energy is exactly constant in these runs because Eq.~\eqref{eq:local-energy-nonint} loses its coordinate-dependent term at $\alpha=1/2$.
 \input{tables/table_1b_validation.tex}
+
+The project also asked for an analytic-versus-numerical local-energy comparison. Table~\ref{tab:1b-timing} compares the analytic expression with a finite-difference kinetic-energy calculation for the same sampled system. The energies agree to numerical precision, while the finite-difference estimator is slower because it evaluates shifted wave functions for every coordinate of every particle.
+\input{tables/table_1b_timing.tex}
 
 \subsection{Importance sampling}
 
@@ -277,6 +297,9 @@ The interacting hard-core runs used $a/a_{\mathrm{ho}}=0.0043$ and $\beta=\gamma
 \reportfigure{fig_1g_energy_N100.pdf}{Interacting hard-core energy per particle for $N=100$ particles.}{fig:1g-n100}
 \input{tables/table_1g_minima.tex}
 
+The reference calculations of DuBois and Glyde considered the same Rb hard-sphere diameter in anisotropic traps and compared VMC energies with Gross--Pitaevskii values over a much larger particle-number range \cite{dubois2001}. Since the present report uses only the assignment grid $N=10,50,100$ and keeps only $\alpha$ variational, a point-by-point literature table is not directly available from those plots. Table~\ref{tab:1g-benchmark-context} therefore reports the small-$N$ interaction strength $Na/a_{\mathrm{ho}}$ and the excess over the ideal anisotropic trap as the quantitative benchmark context.
+\input{tables/table_1g_benchmark_context.tex}
+
 \subsection{One-body densities}
 
 The one-body density was measured with and without the Jastrow factor. Figure~\ref{fig:1h-density} shows the radial density $\rho(r)$, while Figure~\ref{fig:1h-probability} shows the radial probability distribution $4\pi r^2\rho(r)$. The probability distribution is easier to interpret visually because the shell-volume factor suppresses the origin and reveals the most probable radius. Table~\ref{tab:1h-density} lists the peak positions. The two curves are close, indicating that the short-range Jastrow factor mainly affects pair correlations and only weakly changes the one-body density for the hard-core radius used here.
@@ -285,11 +308,15 @@ The one-body density was measured with and without the Jastrow factor. Figure~\r
 \reportfigure{fig_1h_radial_probability.pdf}{Radial probability distribution $4\pi r^2\rho(r)$ with and without the Jastrow factor.}{fig:1h-probability}
 \input{tables/table_1h_density.tex}
 
+To make the short-range role of the Jastrow factor more visible, Figure~\ref{fig:1h-pair-distance} shows the corresponding pair-distance distribution and Table~\ref{tab:1h-pair-distance} summarizes the mean, median, and minimum sampled pair distances. The effect is still modest because $a/a_{\mathrm{ho}}=0.0043$ is very small, but the diagnostic is more directly connected to pair correlations than the one-body density alone.
+\reportfigure{fig_1h_pair_distance.pdf}{Pair-distance probability density with and without the hard-core Jastrow factor.}{fig:1h-pair-distance}
+\input{tables/table_1h_pair_distance.tex}
+
 \section{Conclusion}\label{sec:conclusion}
 
 The VMC implementation reproduces the exact non-interacting harmonic oscillator results in one, two, and three dimensions. The brute-force sampler gives the expected variational minimum at $\alpha=0.5$, while the importance sampler gives the same exact results at $\alpha=0.5$ and sensible finite-variance estimates at $\alpha=0.45$. The optimization routine converges cleanly to the analytical optimum when the learning rate is chosen small enough. Blocking analysis shows that naive error estimates can underestimate the uncertainty when samples are correlated.
 
-For the hard-core Bose gas, the interacting energies are consistently above the ideal reference and increase with particle number. The scanned minima remain near $\alpha=0.5$, showing that the harmonic trap still dominates the one-body scale for the chosen parameters. The radial densities with and without the Jastrow factor are very similar, which is reasonable because the hard-core radius is small compared with the oscillator length. Future improvements would include longer interacting runs, a finer $\alpha$ grid, optimization of both $\alpha$ and $\beta$, and explicit pair-correlation functions to show the short-distance effect of the Jastrow factor more directly.
+For the hard-core Bose gas, the interacting energies are consistently above the ideal reference and increase with particle number. The scanned minima remain near $\alpha=0.5$, showing that the harmonic trap still dominates the one-body scale for the chosen parameters. The radial densities with and without the Jastrow factor are very similar, which is reasonable because the hard-core radius is small compared with the oscillator length. The feedback-driven additions close the main reproducibility gaps by committing the selected CSV result files, adding the analytic-versus-numerical timing table, and adding a pair-distance diagnostic. Future improvements would include longer interacting runs, a finer $\alpha$ grid, optimization of both $\alpha$ and $\beta$, and a fully normalized inhomogeneous pair-correlation function $g(r)$ for the hard-core system.
 
 \appendix
 \section{Reproducibility and plotting}\label{app:reproducibility}
@@ -298,7 +325,7 @@ The report figures and tables were generated from the CSV files in \code{data/re
 \begin{lstlisting}
 python scripts/plot_report_single_column.py
 \end{lstlisting}
-The script writes vector PDF figures to \code{report/figures/} and table snippets to \code{report/tables/}. The matplotlib base font size is 10 pt, matching the body text of the report, and each figure is sized for inclusion at one-column width. The main result files used in the report are stored in \code{data/results/}; they include the brute-force, importance-sampling, optimization, blocking, interacting-energy, and radial-density CSV files. The code repository also contains unit tests for formulas, samplers, statistics, and density utilities.
+The script writes vector PDF figures to \code{report/figures/} and table snippets to \code{report/tables/}. The matplotlib base font size is 10 pt, matching the body text of the report, and each figure is sized for inclusion at one-column width. The main result files used in the report are stored in \code{data/results/}; they include the brute-force, importance-sampling, optimization, blocking, interacting-energy, radial-density, analytic-versus-numerical timing, and pair-distance CSV files. The code repository also contains unit tests for formulas, samplers, statistics, and density utilities.
 
 
 \begin{thebibliography}{9}

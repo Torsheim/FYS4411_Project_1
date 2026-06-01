@@ -15,15 +15,19 @@ env/
 # Jupyter
 .ipynb_checkpoints/
 
-# Generated data; keep folder placeholders
+# Generated raw/intermediate data
 /data/raw/*
 /data/processed/*
-/data/results/*
 /logs/*
 !/data/raw/.gitkeep
 !/data/processed/.gitkeep
-!/data/results/.gitkeep
 !/logs/.gitkeep
+
+# Keep selected result CSV files used by the report
+/data/results/*
+!/data/results/.gitkeep
+!/data/results/README.md
+!/data/results/*.csv
 
 # LaTeX build files
 *.aux

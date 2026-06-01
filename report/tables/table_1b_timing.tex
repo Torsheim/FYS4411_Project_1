@@ -1,0 +1,14 @@
+\begin{table}[t]
+\centering
+\caption{Analytic and finite-difference local-energy comparison for the non-interacting harmonic oscillator. The run used $N=10$, $d=3$, $\alpha=0.45$, and 3000 production cycles. The two estimators agree within numerical precision, while the analytic expression is substantially faster.}
+\label{tab:1b-timing}
+\begin{tabular}{lrrrr}
+\toprule
+Method & $E$ & stderr & time [s] & rel. speed \\
+\midrule
+Analytic & 15.06976703 & 0.00687 & 0.676 & $1.00\times$ \\
+Numerical & 15.06976702 & 0.00687 & 2.854 & $4.22\times$ slower \\
+\bottomrule
+\multicolumn{5}{l}{\footnotesize Absolute energy difference: 1.18e-08.}\\
+\end{tabular}
+\end{table}
