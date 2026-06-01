@@ -13,7 +13,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--quick", action="store_true")
     parser.add_argument("--initial-alpha", type=float, default=0.7)
-    parser.add_argument("--learning-rate", type=float, default=0.001)
+    parser.add_argument("--learning-rate", type=float, default=0.02)
     parser.add_argument("--iterations", type=int, default=12)
     parser.add_argument("--cycles", type=int, default=20_000)
     parser.add_argument("--burn-in", type=int, default=2_000)
