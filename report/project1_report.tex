@@ -35,7 +35,7 @@
 \hypersetup{colorlinks=true, linkcolor=linkcolor, citecolor=linkcolor, urlcolor=linkcolor, breaklinks=true}
 \pagestyle{plain}
 
-\lstset{basicstyle=\ttfamily\footnotesize, breaklines=true, frame=single, columns=fullflexible, keepspaces=true, showstringspaces=false, backgroundcolor=\color{gray!5}}
+\lstset{basicstyle=\ttfamily\scriptsize, breaklines=true, breakatwhitespace=true, frame=single, columns=fullflexible, keepspaces=true, showstringspaces=false, backgroundcolor=\color{gray!5}, aboveskip=0.45em, belowskip=0.45em}
 
 % -------------------- Commands --------------------
 \newcommand{\br}{\mathbf{r}}
@@ -319,14 +319,12 @@ The VMC implementation reproduces the exact non-interacting harmonic oscillator 
 For the hard-core Bose gas, the interacting energies are consistently above the ideal reference and increase with particle number. The scanned minima remain near $\alpha=0.5$, showing that the harmonic trap still dominates the one-body scale for the chosen parameters. The radial densities with and without the Jastrow factor are very similar, which is reasonable because the hard-core radius is small compared with the oscillator length. The feedback-driven additions close the main reproducibility gaps by committing the selected CSV result files, adding the analytic-versus-numerical timing table, and adding a pair-distance diagnostic. Future improvements would include longer interacting runs, a finer $\alpha$ grid, optimization of both $\alpha$ and $\beta$, and a fully normalized inhomogeneous pair-correlation function $g(r)$ for the hard-core system.
 
 
-\clearpage
-\onecolumn
 \appendix
 \section{Reproducibility and code organization}\label{app:reproducibility}
 
 The repository is organized so that the selected numerical results, figures,
 tables, and final PDF can be reproduced from the project root. The main commands
-used to reproduce the selected results are:
+used to set up the environment and reproduce the selected outputs are:
 
 \begin{lstlisting}
 python3 -m venv .venv
@@ -335,13 +333,28 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 pytest -q
 
-python scripts/run_project1_b.py --cycles 50000 --burn-in 5000
-python scripts/run_project1_c.py --n-particles 100 --cycles 50000 --burn-in 5000
-python scripts/run_project1_c.py --n-particles 100 --alpha 0.45 --cycles 20000 --burn-in 2000
-python scripts/run_project1_d.py --n-particles 100 --dimensions 3 --learning-rate 0.001
-python scripts/run_project1_e.py --n-particles 100 --alpha 0.45 --cycles 50000 --burn-in 5000
-python scripts/run_project1_g.py --cycles 30000 --burn-in 3000
-python scripts/run_project1_h.py --cycles 50000 --burn-in 5000 --alpha 0.5
+# Main result scripts
+python scripts/run_project1_b.py \
+  --cycles 50000 --burn-in 5000
+python scripts/run_project1_c.py \
+  --n-particles 100 \
+  --cycles 50000 --burn-in 5000
+python scripts/run_project1_c.py \
+  --n-particles 100 --alpha 0.45 \
+  --cycles 20000 --burn-in 2000
+python scripts/run_project1_d.py \
+  --n-particles 100 --dimensions 3 \
+  --learning-rate 0.001
+python scripts/run_project1_e.py \
+  --n-particles 100 --alpha 0.45 \
+  --cycles 50000 --burn-in 5000
+python scripts/run_project1_g.py \
+  --cycles 30000 --burn-in 3000
+python scripts/run_project1_h.py \
+  --cycles 50000 --burn-in 5000 \
+  --alpha 0.5
+
+# Feedback and report outputs
 python scripts/compare_analytic_numerical_energy.py
 python scripts/run_pair_distance.py
 python scripts/make_all_report_outputs.py
@@ -354,40 +367,36 @@ The plotting scripts read these files and write vector PDF figures to
 The figure font size is set to match the 10 pt report text, and every figure is
 saved separately so that it fits naturally in the two-column layout.
 
+\newpage
 A simplified repository overview is:
 
 \begin{lstlisting}
 FYS4411_Project_1/
-    src/fys4411_project1/
-        wavefunction.py
-        local_energy.py
-        samplers.py
-        optimization.py
-        statistics.py
-        density.py
-        io_utils.py
-    scripts/
-        run_project1_b.py
-        run_project1_c.py
-        run_project1_d.py
-        run_project1_e.py
-        run_project1_g.py
-        run_project1_h.py
-        compare_analytic_numerical_energy.py
-        run_pair_distance.py
-        make_all_report_outputs.py
-        plot_report_single_column.py
-    tests/
-    data/results/
-    report/
-        figures/
-        tables/
-        project1_report.tex
-        project1_report.pdf
-        references.bib
-    docs/
-    README.md
-    pyproject.toml
+  src/fys4411_project1/
+    wavefunction.py
+    local_energy.py
+    samplers.py
+    optimization.py
+    statistics.py
+    density.py
+    io_utils.py
+  scripts/
+    run_project1_[b,c,d,e,g,h].py
+    compare_analytic_numerical_energy.py
+    run_pair_distance.py
+    make_all_report_outputs.py
+    plot_report_single_column.py
+  tests/
+  data/results/
+  report/
+    figures/
+    tables/
+    project1_report.tex
+    project1_report.pdf
+    references.bib
+  docs/
+  README.md
+  pyproject.toml
 \end{lstlisting}
 
 The most important source files are \code{wavefunction.py},
